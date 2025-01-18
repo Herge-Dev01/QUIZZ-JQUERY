@@ -1,5 +1,4 @@
-
-$(document).ready(function() {
+document.addEventListener("DOMContentLoaded", function() {
     const questions = [
         {
             question: "Quelle est la capitale de la France ?",
@@ -51,47 +50,51 @@ $(document).ready(function() {
         }
     ];
 
-
     let currentQuestionIndex = 0;
     let score = 0;
     let answering = false;
     let answerSelected = false;
 
-    $('#restart').hide();
+    document.getElementById('restart').style.display = "none";
 
     function showQuestion(index) {
         const question = questions[index];
-        $('#question').text(question.question);
-        $('#answers').empty();
-        $('#question-image').attr('src', `img/${question.image}`);
+        document.getElementById('question').textContent = question.question;
+        const answersDiv = document.getElementById('answers');
+        answersDiv.innerHTML = '';
+        document.getElementById('question-image').src = `img/${question.image}`;
 
         question.answers.forEach(answer => {
-            $('#answers').append(`<div class="answer">${answer}</div>`);
+            const answerDiv = document.createElement('div');
+            answerDiv.className = 'answer';
+            answerDiv.textContent = answer;
+            answersDiv.appendChild(answerDiv);
         });
     }
 
     function checkAnswer(selectedAnswer) {
         const correctAnswer = questions[currentQuestionIndex].correct;
-        if (selectedAnswer.text() === correctAnswer) {
-            selectedAnswer.addClass('correct');
+        if (selectedAnswer.textContent === correctAnswer) {
+            selectedAnswer.classList.add('correct');
             score++;
         } else {
-            selectedAnswer.addClass('incorrect');
+            selectedAnswer.classList.add('incorrect');
         }
     }
 
-    $('#answers').on('click', '.answer', function() {
+    document.getElementById('answers').addEventListener('click', function(event) {
         if (answering) return;
-        answering = true;
-        const selectedAnswer = $(this);
-        checkAnswer(selectedAnswer);
-        answerSelected = true;
-        $('.answer').off('click'); 
+        if (event.target.classList.contains('answer')) {
+            answering = true;
+            const selectedAnswer = event.target;
+            checkAnswer(selectedAnswer);
+            answerSelected = true;
 
-        $('#next').show();
+            document.getElementById('next').style.display = "block";
+        }
     });
 
-    $('#next').click(function() {
+    document.getElementById('next').addEventListener('click', function() {
         if (!answerSelected) {
             alert('Veuillez choisir une réponse !');
             return;
@@ -100,22 +103,20 @@ $(document).ready(function() {
 
         if (currentQuestionIndex < questions.length) {
             showQuestion(currentQuestionIndex);
-            $('#next').hide();
-            answering = false; 
+            document.getElementById('next').style.display = "none";
+            answering = false;
             answerSelected = false;
             
         } else {
-
-            $('#question').hide();
-            $('#answers').hide();
-            $('#next').hide();
-            $('#result').html(`Votre score est ${score}/${questions.length} !`);
-            $('#restart').show();
-            $('#result').show();
+            document.getElementById('question').style.display = "none";
+            document.getElementById('answers').style.display = "none";
+            document.getElementById('next').style.display = "none";
+            document.getElementById('result').innerHTML = `Votre score est ${score}/${questions.length} !`;
+            document.getElementById('restart').style.display = "block";
+            document.getElementById('result').style.display = "block";
         }
     });
 
-    // Melangé la question
     function shuffle(array) {
         for (let i = array.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
@@ -126,25 +127,25 @@ $(document).ready(function() {
         return array;
     }
 
-    $('#quiz-container').on('click', '#restart',function() {
-        currentQuestionIndex = 0;
-        score = 0;
-        $('#result').empty();
-        $('#result').hide();
-        $('#question').show();
-        $('#answers').show();
-        $('#restart').hide();
-        answering = false;
-        $('#result').html(`Votre score est 0/${questions.length} !`);
+    document.getElementById('quiz-container').addEventListener('click', function(event) {
+        if (event.target.id === 'restart') {
+            currentQuestionIndex = 0;
+            score = 0;
+            document.getElementById('result').innerHTML = '';
+            document.getElementById('result').style.display = "none";
+            document.getElementById('question').style.display = "block";
+            document.getElementById('answers').style.display = "block";
+            document.getElementById('restart').style.display = "none";
+            answering = false;
+            document.getElementById('result').innerHTML = `Votre score est 0/${questions.length} !`;
 
-        questions.forEach(question => {
-            question.answers = shuffle(question.answers);
-        });
+            questions.forEach(question => {
+                question.answers = shuffle(question.answers);
+            });
 
-        showQuestion(currentQuestionIndex);
+            showQuestion(currentQuestionIndex);
+        }
     });
 
-    // Show the first question
     showQuestion(currentQuestionIndex);
 });
-
